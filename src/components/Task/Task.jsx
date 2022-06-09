@@ -1,45 +1,56 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import AddTask from "../AddTask/AddTask";
+import Counter from "../Counter/Counter";
 import styles from "./task.module.css";
 
-const Task = () => {
+const Task = ({counterdata}) => {
   // NOTE: do not delete `data-testid` key value pair
 
-  const [showText, setShowtext] = useState()
+  const [textdata,setTextdata]= useState([])
 
-  const [count,setCount] = useState(0)
+ 
 
-  let handelCounter =(data)=>{
-    
-    if(count>=0){
-      setCount(count+value)
 
-    }
+  useEffect(()=>{
+    getData()
+  },[])
+  
+  const getData=()=>{
+    axios.get("http://localhost:3001/todo").then((res)=>setTextdata(res.data))
 
   }
-    
-  const getdata=(value)=>{
-    // const payload={
-    //      id:1,
-    //     text:value,
-    //     done:false,
-    //     count:0
-    // }
 
-    setShowtext(value)
- }
+
+
+  // const addData=(text)=>{
+  //   axios.post("http://localhost:8080/TodoData")
+  //   .then(()=>
+  //   {getData()})
+  // }
+
+  const handelDelete=(id)=>{
+    axios.delete(`http://localhost:3001/todo/${id}`).then(getData)
+  }
+
+ 
+  //console.log(textdata)
+ 
     
   return (
-    <li data-testid="task" className={styles.task}>
-     <AddTask getText={getdata}></AddTask>
-      <input type="checkbox" data-testid="task-checkbox" />
-      <div data-testid="task-text">{showText}</div>
-      {/* Counter here */}
-       <button onClick={()=>{handelCounter(1)}}>+</button>
-       <h3>{count}</h3>
-       <button onClick={()=>{handelCounter(-1)}}>-</button>
-      <button data-testid="task-remove-button"></button>
-    </li>
+      textdata.map((e)=>{
+        return(
+          <li data-testid="task" key={e.id} className={styles.task}>
+     
+          <input type="checkbox" data-testid="task-checkbox" />
+          <div data-testid="task-text">{e.text}</div>
+          {/* Counter here */}
+          <Counter countervalue={e.count}></Counter>
+           
+          <button data-testid="task-remove-button" onClick={()=>{handelDelete(e.id)}}>X</button>
+        </li>
+        )
+      })
   );
 };
 
